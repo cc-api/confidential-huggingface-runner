@@ -1,0 +1,3 @@
+[submodule "containers/confidential-huggingface-runner/ChatGLM-6B"]
+	path = containers/confidential-huggingface-runner/ChatGLM-6B
+	url = https://huggingface.co/spaces/kenplusplus/ChatGLM-6B/tree/main
