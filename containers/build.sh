@@ -11,6 +11,7 @@ registry="registry.cn-hangzhou.aliyuncs.com/kenplusplus"
 container="all"
 tag="latest"
 docker_build_clean_param=""
+model_id="dongx1x/Llama-2-7b-chat-hf-sharded-bf16-aes"
 all_containers=()
 
 function scan_all_containers {
@@ -35,7 +36,7 @@ EOM
 }
 
 function process_args {
-while getopts ":a:r:c:g:hf" option; do
+while getopts ":a:r:c:g:hf:m:p:" option; do
         case "${option}" in
             a) action=${OPTARG};;
             r) registry=${OPTARG};;
@@ -43,6 +44,8 @@ while getopts ":a:r:c:g:hf" option; do
             g) tag=${OPTARG};;
             h) usage;;
             f) docker_build_clean_param="--no-cache --rm";;
+            m) model_id=${OPTARG};;
+            p) repo=${OPTARG};;
             *) echo "Invalid option: -${OPTARG}" >&2
                usage
                ;;
@@ -86,6 +89,8 @@ function build_a_image {
         "--build-arg" "no_proxy"
         "--build-arg" "pip_mirror"
         "--build-arg" "hf_token"
+        "--build-arg" "model_id=${model_id}"
+        "--build-arg" "repo=${repo}"
         "-f" "${container_directory}/${img_container}/Dockerfile"
         .
         "--tag" "${registry}/${img_container}:${tag}"
