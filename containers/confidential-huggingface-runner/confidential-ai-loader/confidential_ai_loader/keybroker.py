@@ -117,7 +117,7 @@ class ItaKeyBrokerClient(KeyBrokerClientBase):
         if key_id is None:
             raise ValueError("KBS key id can not be None")
 
-        private_key = rsa.generate_private_key(public_exponent=RSA_PUBLIC_EXPONENT, RSA_KEY_SIZE=3072)
+        private_key = rsa.generate_private_key(public_exponent=RSA_PUBLIC_EXPONENT, key_size=RSA_KEY_SIZE)
         pubkey = private_key.public_key()
         pubkey_der = pubkey.public_bytes(encoding=serialization.Encoding.DER,
                                              format=serialization.PublicFormat.SubjectPublicKeyInfo)
