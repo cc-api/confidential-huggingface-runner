@@ -1,0 +1,32 @@
+[project]
+name = "confidential_ai_loader"
+version = "0.1.0"
+authors = [
+  { name="Xiaocheng Dong", email="xiaocheng.dong@intel.com" },
+]
+description = "Confidential AI loader"
+readme = "README.md"
+license = { text="Apache Software License" }
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+]
+
+[project.urls]
+"Homepage" = "https://github.com/intel-sandbox/confidential-huggingface-runner"
+"Bug Tracker" = "https://github.com/intel-sandbox/confidential-huggingface-runner/issues"
+
+[project.scripts]
+hf_loader = "confidential_ai_loader:hf_cli"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where=["."]
+include=["confidential_ai_loader*"]
