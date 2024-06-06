@@ -8,7 +8,7 @@ import sys
 from abc import ABC, abstractmethod
 from huggingface_hub import try_to_load_from_cache
 from .crypto import AesCrypto
-from .keybrocker import ItaKeyBrokerClient
+from .keybroker import ItaKeyBrokerClient
 
 LOG = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class HuggingFaceLoader(LoaderBase):
 
         This method is design to get the encrypted models in the cache directory of
         Hugging Face model project, a `ENCRYPTION_CONFIG` is a configuration file including
-        the KBS information and key id, call keybrocker to get the key and decrypt the models
+        the KBS information and key id, call keybroker to get the key and decrypt the models
 
         """
         config_path = try_to_load_from_cache(model_input, ENCRYPTION_CONFIG)
