@@ -26,12 +26,13 @@ LOG = logging.getLogger(__name__)
 # Set the connection timeout to 10s
 TIMEOUT = 10
 # Set the connection retry times to 3
-RETRY_TIMES=3
+RETRY_TIMES = 3
 # Set http connection succesfull code
 HTTP_OK = [200]
 # Set RSA key configuration
 RSA_PUBLIC_EXPONENT = 65537
 RSA_KEY_SIZE = 3072
+
 
 class KeyBrokerClientBase(ABC):
     """An abstract base class for key broker client.
@@ -77,9 +78,12 @@ class ItaKeyBrokerClient(KeyBrokerClientBase):
         - Request wrapped_key and wrapped_swk from KBS with quote and user_data.
         - Decrypt the user key by the SWK.
     """
-    def get_key(self, server_url: str, key_id: str) -> bytes: # pylint: disable=too-many-locals
+
+    def get_key(
+        self, server_url: str, key_id: str
+    ) -> bytes:  # pylint: disable=too-many-locals
         """Get model key by key ID from the KBS.
-  
+
         This method get and replay all event logs, and verify by the measurement register, then
         construct the request headers and body to request the wrapped_key and wrapped_swk from KBS,
         decrypt the user key by SWK and return the key.
@@ -106,7 +110,7 @@ class ItaKeyBrokerClient(KeyBrokerClientBase):
 
         Returns:
             bytes: The bytes of the key.
-    
+
         Raises:
             ValueError: If the server_url or key_id is None.
             RuntimeError: If get or verify event log failed, and if get quote or get key failed.
@@ -117,10 +121,14 @@ class ItaKeyBrokerClient(KeyBrokerClientBase):
         if key_id is None:
             raise ValueError("KBS key id can not be None")
 
-        private_key = rsa.generate_private_key(public_exponent=RSA_PUBLIC_EXPONENT, key_size=RSA_KEY_SIZE)
+        private_key = rsa.generate_private_key(
+            public_exponent=RSA_PUBLIC_EXPONENT, key_size=RSA_KEY_SIZE
+        )
         pubkey = private_key.public_key()
-        pubkey_der = pubkey.public_bytes(encoding=serialization.Encoding.DER,
-                                             format=serialization.PublicFormat.SubjectPublicKeyInfo)
+        pubkey_der = pubkey.public_bytes(
+            encoding=serialization.Encoding.DER,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
 
         LOG.debug("Getting TDX Quote by CCNP")
         user_data = base64.b64encode(pubkey_der).decode('utf-8')
@@ -129,23 +137,25 @@ class ItaKeyBrokerClient(KeyBrokerClientBase):
             raise RuntimeError("Get TDX Quote failed")
         quote = base64.b64encode(quote.data).decode('utf-8')
 
-        req_body = {
-            "quote": quote,
-            "user_data": user_data
-        }
+        req_body = {"quote": quote, "user_data": user_data}
 
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "Attestation-Type": "TDX"
+            "Attestation-Type": "TDX",
         }
 
         LOG.debug("Getting key from the KBS")
         resp = None
         for _ in range(RETRY_TIMES):
             try:
-                resp = requests.post(server_url, json=req_body, headers=headers, verify=False,
-                                     timeout=TIMEOUT)
+                resp = requests.post(
+                    server_url,
+                    json=req_body,
+                    headers=headers,
+                    verify=False,
+                    timeout=TIMEOUT,
+                )
                 if resp.status_code in HTTP_OK:
                     break
             except requests.exceptions.ConnectionError:
@@ -163,12 +173,12 @@ class ItaKeyBrokerClient(KeyBrokerClientBase):
 
         LOG.debug("Decrypting the SWK")
         swk = private_key.decrypt(
-          wrapped_swk,
-          padding.OAEP(
-              mgf=padding.MGF1(algorithm=hashes.SHA256()),
-              algorithm=hashes.SHA256(),
-              label=None
-          )
+            wrapped_swk,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None,
+            ),
         )
         crypt = AesCrypto()
         return crypt.decrypt(swk, wrapped_key)
