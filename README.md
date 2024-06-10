@@ -1,8 +1,8 @@
 # Confidential Hugging Face Runner
 
-This project is designed to build a runner to make the Hugging Face project easily running inside
+This project is designed to build a runner to make the Hugging Face project easily run inside
 Trusted Execution Environment (TEE), especially for Large Language Model (LLM), and demonstrate
-whole process from evidence collection and attestation.
+whole process from evidence collection to attestation.
 
 ## Protect AI Models by Confidential AI Loader
 
@@ -12,18 +12,20 @@ major parts to protect the models in TEE:
 * AI model encryption
 * Decrypt model with attestation
 
-### Arhitecture Overview
+### Architecture Overview
 ![Architecture](docs/arch.png)
 
 ### AI Model Preprocessing
 
 To protect the model and its encryption key, the following preprocessing steps are taken:
 
+**Note:The following steps must be run on a trusted system.*
+
 * Generate a key, a AES GCM key can be used for confidentiality and integrity.
 
     ```Shell
     # Generate a 256 bit (32 bytes) random key
-    KEY=`head -c 32 /dev/random | base64`
+    KEY=$(head -c 32 /dev/random | base64)
     ```
 
 * Encrypt AI model by the key.
@@ -39,6 +41,7 @@ To protect the model and its encryption key, the following preprocessing steps a
 
     ```Shell
     # Clone the repo
+
     git clone git@hf.co:<your-username>/<your-model-name>
     cd <your-model-name>
 
@@ -58,15 +61,14 @@ To protect the model and its encryption key, the following preprocessing steps a
 
         ```Shell
         BODY='{"username":"'$USER'", "password":"'$PASS'"}'
-        TOKEN=`curl -X POST $URL$API_TOKEN -d "$BODY" -H "Accept:application/jwt" \
-            -H "Content-Type:application/json"`
+        TOKEN=$(curl -sL -X POST "${URL}/${API_TOKEN}" -d "$BODY" -H "Accept:application/jwt" -H "Content-Type:application/json")
 
         ```
-    * Create a key transfer policy
+    * Create a key transfer policy, such as `cat policy.json`
 
         ```JSON
         {
-            "attestation_type":"TDX",
+            "attestation_type":"tdx",
             "tdx":{
             "attributes":{
                 "enforce_tcb_upto_date":false,
@@ -81,7 +83,7 @@ To protect the model and its encryption key, the following preprocessing steps a
 
         ```Shell
         # Register policy
-        RESP=`curl -X POST $URL$API_POLICY -d @scripts/amber_policy.json -H "Accept:application/json" \
+        RESP=`curl -X POST $URL$API_POLICY -d @policy.json -H "Accept:application/json" \
         -H "Content-Type:application/json" -H "Authorization:Bearer $TOKEN"`
         POLICY_ID=`echo $RESP | jq -r .id`
         ```

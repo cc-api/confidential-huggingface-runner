@@ -30,6 +30,8 @@ usage: $(basename "$0") [OPTION]...
     -r <registry prefix> the prefix string for registry
     -c <container name> same as directory name
     -g <tag> container image tag
+    -m <model name> name of a model which will be cached inside the container image
+    -p <repo name> name of a hugging face repo which will be set as the default application
     -f Clean build
 EOM
     exit 1
