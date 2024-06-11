@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 LOG = logging.getLogger(__name__)
 
+
 class CryptoBase(ABC):
     """An abstract base class for crypto.
     This class serves as a blueprint for subclasses that need to implement
@@ -32,7 +33,7 @@ class CryptoBase(ABC):
             NotImplementedError: If the subclasses don't implement the method.
         """
         raise NotImplementedError("Subclasses should implement encrypt() method.")
-    
+
     @abstractmethod
     def decrypt(self, key, data):
         """Decrypt data by a key.
@@ -49,6 +50,7 @@ class CryptoBase(ABC):
         """
         raise NotImplementedError("Subclasses should implement decrypt() method.")
 
+
 class AesCrypto(CryptoBase):
     """Advanced Encryption Standard (AES) crypto.
 
@@ -64,6 +66,7 @@ class AesCrypto(CryptoBase):
     | uint32 IV length | uint32 tag length | uint32 data length |
     -----------------------------------------------------------
     """
+
     def encrypt(self, key, data):
         """AES encryption.
 
@@ -99,14 +102,19 @@ class AesCrypto(CryptoBase):
             raise ValueError("The data can not be None")
         if key is None:
             raise ValueError("The key can not be None")
-        
+
         header_len = 12
         iv_len, tag_len, data_len = struct.unpack('<3I', data[:header_len])
         iv = data[header_len : (iv_len + header_len)]
         raw_data = data[(iv_len + header_len) : -tag_len]
         tag = data[-tag_len:]
 
-        LOG.debug("Decrypt data, IV len %d, tag len %d, data len %d", iv_len, tag_len, data_len)
+        LOG.debug(
+            "Decrypt data, IV len %d, tag len %d, data len %d",
+            iv_len,
+            tag_len,
+            data_len,
+        )
         decryptor = Cipher(algorithms.AES(key), modes.GCM(iv, tag)).decryptor()
         decrypted_data = decryptor.update(raw_data) + decryptor.finalize()
         return decrypted_data
@@ -127,7 +135,7 @@ class AesCrypto(CryptoBase):
             raise ValueError("The input can not be None")
         if output is None:
             raise ValueError("The output can not be None")
-        
+
         if not os.path.isfile(input):
             raise ValueError(f"The input is not a file: {input}")
 
@@ -154,7 +162,7 @@ class AesCrypto(CryptoBase):
             raise ValueError("The input can not be None")
         if output is None:
             raise ValueError("The output can not be None")
-        
+
         if not os.path.isfile(input):
             raise ValueError(f"The input is not a file: {input}")
 
@@ -165,12 +173,21 @@ class AesCrypto(CryptoBase):
             with open(output, 'wb') as outfile:
                 outfile.write(decrypted_data)
 
+
 def main():
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
-    parser = argparse.ArgumentParser(description="The utility to show how to encrypt model")
-    parser.add_argument('-i', '--input',  help='set input file or directory', dest='input')
-    parser.add_argument('-o', '--output',  help='set output file or directory', dest='output')
-    parser.add_argument('-k', '--key',  help='set encryption key with base64 encoded', dest='key')
+    parser = argparse.ArgumentParser(
+        description="The utility to show how to encrypt model"
+    )
+    parser.add_argument(
+        '-i', '--input', help='set input file or directory', dest='input'
+    )
+    parser.add_argument(
+        '-o', '--output', help='set output file or directory', dest='output'
+    )
+    parser.add_argument(
+        '-k', '--key', help='set encryption key with base64 encoded', dest='key'
+    )
     args = parser.parse_args()
 
     if args.input is None or args.output is None or args.key is None:
@@ -183,21 +200,18 @@ def main():
         LOG.error("Decode the key failed, key should be base64 encoded.")
         exit(1)
 
-    encryption_config = {
-        "kbs": "",
-        "kbs_url": "",
-        "key_id": "",
-        "files": []
-    }
+    encryption_config = {"kbs": "", "kbs_url": "", "key_id": "", "files": []}
 
     crypto = AesCrypto()
     if os.path.isdir(args.input):
         if os.path.isdir(args.output):
             for item in os.listdir(args.input):
                 input_file = os.path.join(args.input, item)
-                if (os.path.isfile(input_file) and
-                    not item.startswith('.') and
-                    not item.endswith('.md')):
+                if (
+                    os.path.isfile(input_file)
+                    and not item.startswith('.')
+                    and not item.endswith('.md')
+                ):
                     output_file = os.path.join(args.output, item + ".aes")
                     crypto.encrypt_file(key, input_file, output_file)
                     encryption_config["files"].append(output_file)
@@ -207,6 +221,7 @@ def main():
             LOG.error("Output is not matching input.")
     if os.path.isfile(args.input):
         crypto.encrypt_file(key, args.input, args.output)
+
 
 if __name__ == "__main__":
     main()
