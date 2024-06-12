@@ -60,14 +60,14 @@ EOM
 function process_args {
 while getopts ":a:c:g:hm:p:r:" option; do
         case "${option}" in
-            a) action=${OPTARG};;
-            c) container=${OPTARG};;
+            a) action="${OPTARG}";;
+            c) container="${OPTARG}";;
             f) docker_build_clean_param="--no-cache --rm";;
-            g) tag=${OPTARG};;
+            g) tag="${OPTARG}";;
             h) usage;;
-            m) model_id=${OPTARG};;
-            p) repo=${OPTARG};;
-            r) registry=${OPTARG};;
+            m) model_id="${OPTARG}";;
+            p) repo="${OPTARG}";;
+            r) registry="${OPTARG}";;
             *) error "Invalid option: -${OPTARG}"
                usage
                ;;
