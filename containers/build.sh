@@ -59,15 +59,15 @@ while getopts ":a:c:g:hm:p:r:" option; do
         usage
     fi
 
-    if [[ "$container" != "all" ]]; then
+    if [ "$container" != 'all' ]; then
         if [[ ! "${all_containers[*]}" =~ ${container} ]]; then
             echo "invalid container name: $container"
             usage
         fi
     fi
 
-    if [[ -z "$registry" ]]; then
-        if [[ -z "$EIP_REGISTRY" ]]; then
+    if [ -z "$registry" ]; then
+        if [ -z "$EIP_REGISTRY" ]; then
             echo "Error: Please specify your docker registry via -r <registry prefix> or set environment variable EIP_REGISTRY."
             exit 1
         else
@@ -98,7 +98,7 @@ function build_a_image {
         "--tag" "${registry}/${img_container}:${tag}"
     )
 
-    if [[ -n "${docker_build_clean_param}" ]]; then
+    if [ -n "${docker_build_clean_param}" ]; then
         read -ar split_params <<< "${docker_build_clean_param}"
         docker_build_args+=("${split_params[@]}")
     fi
@@ -120,7 +120,7 @@ function build_a_image {
 }
 
 function build_images {
-    if [[ "$container" == "all" ]]; then
+    if [ "$container" = 'all' ]; then
         for img_container in "${all_containers[@]}"
         do
             build_a_image "$img_container"
@@ -139,7 +139,7 @@ function publish_a_image {
 }
 
 function publish_images {
-    if [[ "$container" == "all" ]]; then
+    if [ "$container" = 'all' ]; then
         for img_container in "${all_containers[@]}"
         do
             publish_a_image "$img_container"
@@ -158,7 +158,7 @@ function download_a_image {
 }
 
 function download_images {
-    if [[ "$container" == "all" ]]; then
+    if [ "$container" = 'all' ]; then
         for img_container in "${all_containers[@]}"
         do
 	    download_a_image "$img_container"
@@ -177,7 +177,7 @@ function save_a_image {
 }
 
 function save_images {
-    if [[ "$container" == "all" ]]; then
+    if [ "$container" = 'all' ]; then
         for img_container in "${all_containers[@]}"
         do
             save_a_image "$img_container"
