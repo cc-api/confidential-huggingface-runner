@@ -34,6 +34,9 @@ function die {
 }
 
 function scan_all_containers {
+    local -a dirs=()
+    local dir
+
     mapfile -t dirs < <(cd "${container_directory}" && ls -d ./*/)
     for dir in "${dirs[@]}"
     do
@@ -123,6 +126,8 @@ function build_a_image {
     )
 
     if [ -n "${docker_build_clean_param}" ]; then
+        local -a split_params=()
+
         read -ar split_params <<< "${docker_build_clean_param}"
         docker_build_args+=("${split_params[@]}")
     fi
@@ -145,6 +150,8 @@ function build_a_image {
 
 function build_images {
     if [ "$container" = 'all' ]; then
+        local img_container
+
         for img_container in "${all_containers[@]}"
         do
             build_a_image "$img_container"
@@ -166,6 +173,8 @@ function publish_a_image {
 
 function publish_images {
     if [ "$container" = 'all' ]; then
+        local img_container
+
         for img_container in "${all_containers[@]}"
         do
             publish_a_image "$img_container"
@@ -187,6 +196,8 @@ function download_a_image {
 
 function download_images {
     if [ "$container" = 'all' ]; then
+        local img_container
+
         for img_container in "${all_containers[@]}"
         do
             download_a_image "$img_container"
@@ -208,6 +219,8 @@ function save_a_image {
 
 function save_images {
     if [ "$container" = 'all' ]; then
+        local img_container
+
         for img_container in "${all_containers[@]}"
         do
             save_a_image "$img_container"
