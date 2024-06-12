@@ -99,7 +99,9 @@ while getopts ":a:c:g:hm:p:r:" option; do
 }
 
 function build_a_image {
-    local img_container=$1
+    local img_container="${1:-}"
+    [ -z "$img_container" ] && die "need container image"
+
     info "Build container image => ${registry}/${img_container}:${tag}"
 
     if [ -f "${container_directory}/${img_container}/pre-build.sh" ]; then
@@ -153,7 +155,9 @@ function build_images {
 }
 
 function publish_a_image {
-    local img_container=$1
+    local img_container="${1:-}"
+    [ -z "$img_container" ] && die "need container image"
+
     info "Publish container image: ${registry}/${img_container}:${tag} ..."
     docker push "${registry}/${img_container}:${tag}" || \
         { die "Failed to push docker ${registry}/${img_container}:${tag}"; }
@@ -172,7 +176,9 @@ function publish_images {
 }
 
 function download_a_image {
-    local img_container=$1
+    local img_container="${1:-}"
+    [ -z "$img_container" ] && die "need container image"
+
     info "Download container image: ${registry}/${img_container}:${tag} ..."
     crictl pull "${registry}/${img_container}:${tag}" || \
         { die "Failed to download images ${registry}/${img_container}:${tag}"; }
@@ -191,7 +197,9 @@ function download_images {
 }
 
 function save_a_image {
-    local img_container=$1
+    local img_container="${1:-}"
+    [ -z "$img_container" ] && die "need container image"
+
     info "Save container image ${registry}/${img_container}:${tag} => ${top_directory}/images/ ... "
     mkdir -p "${top_directory}/images/"
     docker save -o "${top_directory}/images/${img_container}-${tag}.tar" "${registry}/${img_container}:${tag}"
