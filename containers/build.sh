@@ -26,27 +26,28 @@ function usage {
     cat << EOM
 usage: $(basename "$0") [OPTION]...
     -a <build|download|publish|save|all>  all is default, which not include save. Please execute save explicity if need.
-    -r <registry prefix> the prefix string for registry
-    -c <container name> same as directory name
-    -g <tag> container image tag
-    -m <model name> name of a model which will be cached inside the container image
-    -p <repo name> name of a hugging face repo which will be set as the default application
-    -f Clean build
+    -c <container name> same as directory name.
+    -f Clean build.
+    -g <tag> container image tag.
+    -h Show usage.
+    -m <model name> name of a model which will be cached inside the container image.
+    -p <repo name> name of a hugging face repo which will be set as the default application.
+    -r <registry prefix> the prefix string for registry.
 EOM
     exit 1
 }
 
 function process_args {
-while getopts ":a:r:c:g:hf:m:p:" option; do
+while getopts ":a:c:g:hm:p:r:" option; do
         case "${option}" in
             a) action=${OPTARG};;
-            r) registry=${OPTARG};;
             c) container=${OPTARG};;
+            f) docker_build_clean_param="--no-cache --rm";;
             g) tag=${OPTARG};;
             h) usage;;
-            f) docker_build_clean_param="--no-cache --rm";;
             m) model_id=${OPTARG};;
             p) repo=${OPTARG};;
+            r) registry=${OPTARG};;
             *) echo "Invalid option: -${OPTARG}" >&2
                usage
                ;;
