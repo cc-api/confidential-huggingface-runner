@@ -74,6 +74,9 @@ while getopts ":a:c:g:hm:p:r:" option; do
         esac
     done
 
+    [ -z "$model_id" ] && die "need model ID"
+    [ -z "$repo" ] && die "need repo"
+
     if [[ ! "$action" =~ ^(build|download|publish|save|all)$ ]]; then
         error "invalid type: $action"
         usage
