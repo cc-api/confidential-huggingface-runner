@@ -86,12 +86,12 @@ function build_a_image {
     fi
 
     docker_build_args=(
+        "--build-arg" "hf_token"
         "--build-arg" "http_proxy"
         "--build-arg" "https_proxy"
+        "--build-arg" "model_id=${model_id}"
         "--build-arg" "no_proxy"
         "--build-arg" "pip_mirror"
-        "--build-arg" "hf_token"
-        "--build-arg" "model_id=${model_id}"
         "--build-arg" "repo=${repo}"
         "-f" "${container_directory}/${img_container}/Dockerfile"
         .
