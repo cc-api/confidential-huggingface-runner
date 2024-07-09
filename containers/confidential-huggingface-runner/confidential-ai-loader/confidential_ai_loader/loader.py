@@ -42,7 +42,7 @@ class HuggingFaceLoader(LoaderBase):
 
         LOG.info(f'\tDecrypting {in_path} to {out_path}')
 
-        crypt = crypto.AesCrypto()
+        crypt = AesCrypto()
 
         crypt.decrypt_file(secret, in_path, out_path)
 
@@ -150,6 +150,8 @@ class HuggingFaceLoader(LoaderBase):
         env["HF_HUB_CACHE"] = model_hub
         # Set L2 size to 128M
         env["OPENBLAS_L2_SIZE"] = "134217728"
+        # Workaround to access huggingface hub from PRC
+        env["HF_ENDPOINT"] = "https://hf-mirror.com"
 
         hf_loader = HuggingFaceLoader()
         hf_loader.prepare_model(model_id, model_hub)
